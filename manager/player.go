@@ -1,4 +1,23 @@
 package manager
 
+import "awesomeProject/player"
+
 // 维护在线玩家
-type
+type PlayerMgr struct {
+	players map[uint64]player.Player
+	addPCh  chan player.Player
+}
+
+func (pm *PlayerMgr) Add(p player.Player) {
+	pm.players[p.UId] = p
+	go p.Run()
+}
+
+func (pm *PlayerMgr) Run() {
+	for {
+		select {
+		case p := <-pm.addPCh:
+			pm.Add(p)
+		}
+	}
+}
